@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; color: #1a3a5c; }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2438 100%);
+            color: white; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar a { color: white; text-decoration: none; font-size: 13px; opacity: 0.85; }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
+        h1 { font-size: 24px; margin-bottom: 24px; }
+        h2 { font-size: 14px; margin-bottom: 16px; color: #6b7785; font-weight: 600; }
+
+        .anomaly-section { margin-bottom: 40px; }
+        .anomaly-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+        .anomaly-card {
+            background: white; border-radius: 12px; padding: 16px 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #c0392b;
+        }
+        .anomaly-card .staff-name { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+        .flag-tag {
+            display: inline-block; background: #fdecea; color: #c0392b;
+            font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+            margin: 2px 4px 2px 0;
+        }
+        .flag-tag.late { background: #fdf3e3; color: #b8860b; }
+        .anomaly-empty { color: #9aa5b1; font-size: 14px; padding: 14px 0; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f2f4; }
+        th { background: #f4f6f8; font-weight: 600; color: #6b7785; }
+
+        .status-pill {
+            display: inline-block; padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+        }
+        .status-pill.face { background: #e6f4ea; color: #2e7d32; }
+        .status-pill.gps { background: #e8f0fb; color: #2461a8; }
+
+        .empty-state { color: #9aa5b1; font-size: 14px; padding: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <span>Attendance Report</span>
+        <a href="/logout">Log Out</a>
+    </div>
+
+    <div class="container">
+
+        <div class="anomaly-section">
+            <h1>Attendance Anomalies</h1>
+            <h2>Staff flagged for frequent lateness or consecutive absences</h2>
+
+            {% if anomalies %}
+            <div class="anomaly-grid">
+                {% for a in anomalies %}
+                <div class="anomaly-card">
+                    <div class="staff-name">{{ a.username }}</div>
+                    {% for flag in a.flags %}
+                        <span class="flag-tag {{ 'late' if 'Late' in flag else '' }}">{{ flag }}</span>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="anomaly-empty">No anomalies detected. Everyone's attendance looks normal.</p>
+            {% endif %}
+        </div>
+
+        <h1>Attendance Report — All Staff</h1>
+
+        {% if records %}
+        <table>
+            <tr><th>Username</th><th>Date</th><th>Time</th><th>Method</th></tr>
+            {% for r in records %}
+            <tr>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+                <td>
+                    {% if 'Face' in r[6] %}
+                    <span class="status-pill face">Face</span>
+                    {% else %}
+                    <span class="status-pill gps">GPS</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="empty-state">No attendance records yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

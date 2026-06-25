@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ETI Staff Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(180deg, #f4f6f8 0%, #eef1f4 100%);
+            color: #1a3a5c;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2438 100%);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+       .topbar-left img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: white;
+    padding: 2px;
+    object-fit: contain;
+}
+        .topbar-left span { font-weight: 600; font-size: 17px; }
+
+        .topbar-right { display: flex; align-items: center; gap: 18px; font-size: 13px; }
+        .topbar-right .user-tag { background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 20px; }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.15); color: white;
+            padding: 8px 16px; border-radius: 6px; text-decoration: none;
+            font-size: 13px; font-weight: 500;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .container { max-width: 1100px; margin: 44px auto; padding: 0 24px; }
+
+        .welcome-text { margin-bottom: 32px; }
+        .welcome-text h1 { font-size: 26px; margin-bottom: 6px; }
+        .welcome-text p { color: #6b7785; font-size: 14px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            background: white; border-radius: 14px; padding: 26px;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+            border: 1px solid #eef1f4;
+            text-decoration: none; color: inherit; display: block;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.1); }
+
+        .card-icon {
+            width: 52px; height: 52px; border-radius: 12px;
+            background: #eef3f8; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-bottom: 18px;
+        }
+        .card h3 { font-size: 17px; margin-bottom: 8px; }
+        .card p { font-size: 13px; color: #6b7785; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <img src="{{ url_for('static', filename='images/eti_logo.png') }}" alt="ETI Logo">
+            <span>Educational Trust of India — Staff Portal</span>
+        </div>
+        <div class="topbar-right">
+            <span class="user-tag">{{ session_username }} · {{ session_role }}</span>
+            <a href="/logout" class="logout-btn">Log Out</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-text">
+            <h1>Welcome, {{ session_username }}</h1>
+            <p>Here's what you can do from here.</p>
+        </div>
+
+        <div class="grid">
+            <a href="/photos" class="card">
+                <div class="card-icon">📷</div>
+                <h3>Programme Photos</h3>
+                <p>Upload and view programme photos by folder.</p>
+            </a>
+
+            <a href="/attendance" class="card">
+                <div class="card-icon">🗓️</div>
+                <h3>Attendance</h3>
+                <p>Mark your attendance and view your history.</p>
+            </a>
+
+            <a href="/face/enroll-page" class="card">
+                <div class="card-icon">🧑‍💼</div>
+                <h3>Face Enrollment</h3>
+                <p>Set up face recognition for quick attendance check-in.</p>
+            </a>
+            <a href="/face/checkin-page" class="card">
+                <div class="card-icon">🔓</div>
+                <h3>Face Check-In</h3>
+                <p>Mark attendance using face recognition.</p>
+            </a>
+
+            <a href="/leave" class="card">
+                <div class="card-icon">📝</div>
+                <h3>Leave Request</h3>
+                <p>Submit a leave request for approval.</p>
+
+            </a>
+        </div>
+    </div>
+</body>
+</html>

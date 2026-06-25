@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Staff</title>
+    <style>
+        :root {
+            --navy-900: #0f2438;
+            --navy-800: #1a3a5c;
+            --navy-700: #234a6e;
+            --steel: #4a6178;
+            --muted: #7a8794;
+            --line: #edf0f3;
+            --bg: #f3f5f7;
+            --card: #ffffff;
+            --danger: #c0392b;
+            --danger-dark: #a93226;
+            --success: #2e7d32;
+            --success-bg: #e6f4ea;
+            --admin-bg: #fdf3e3;
+            --admin-fg: #9a6a00;
+            --staff-bg: #eaf1fb;
+            --staff-fg: #2f6690;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 8px;
+            --shadow-card: 0 1px 2px rgba(15,36,56,0.05), 0 10px 28px -12px rgba(15,36,56,0.16);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+            background:
+                radial-gradient(900px 400px at 100% -10%, rgba(26,58,92,0.05), transparent),
+                var(--bg);
+            color: var(--navy-800);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, var(--navy-800) 0%, var(--navy-900) 100%);
+            color: white; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(15,36,56,0.25);
+        }
+        .topbar a {
+            color: white; text-decoration: none; font-size: 13px; opacity: 0.85;
+            transition: opacity 0.15s ease;
+        }
+        .topbar a:hover { opacity: 1; }
+        .topbar span { font-weight: 600; letter-spacing: 0.2px; }
+
+        .container { max-width: 920px; margin: 48px auto 80px; padding: 0 24px; }
+
+        .page-head { margin-bottom: 28px; }
+        .page-head .eyebrow {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--staff-fg); margin-bottom: 6px;
+        }
+        h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
+        .page-head p { font-size: 14px; color: var(--muted); }
+
+        .add-card {
+            background: var(--card); border-radius: var(--radius-lg); padding: 26px;
+            box-shadow: var(--shadow-card); margin-bottom: 32px;
+            border: 1px solid var(--line);
+            animation: riseIn 0.4s ease both;
+        }
+        .add-card h2 {
+            font-size: 13px; font-weight: 700; color: var(--steel);
+            margin-bottom: 16px; letter-spacing: 0.01em;
+        }
+        .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+        .field { position: relative; flex: 1; min-width: 180px; }
+        .field svg {
+            position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+            width: 15px; height: 15px; color: var(--muted); pointer-events: none;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%; padding: 11px 14px 11px 38px;
+            border: 1.5px solid #dde3e8; border-radius: var(--radius-sm); font-size: 14px;
+            color: var(--navy-800); background: #fbfcfd;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none; border-color: var(--navy-700); background: white;
+            box-shadow: 0 0 0 3px rgba(26,58,92,0.10);
+        }
+        input::placeholder { color: #a6b0ba; }
+
+        button {
+            background: var(--navy-800); color: white; border: none;
+            padding: 11px 22px; border-radius: var(--radius-sm); font-size: 14px;
+            font-weight: 600; cursor: pointer; white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 7px;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        button:hover { background: var(--navy-900); }
+        button:active { transform: translateY(1px); }
+        button:focus-visible { outline: 2px solid var(--navy-700); outline-offset: 2px; }
+
+        .error-msg {
+            display: flex; align-items: center; gap: 8px;
+            background: #fdecea; color: var(--danger); padding: 10px 14px;
+            border-radius: var(--radius-sm); font-size: 13px; margin-top: 14px;
+        }
+        .error-msg svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+        .list-card {
+            background: var(--card); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card); border: 1px solid var(--line);
+            overflow: hidden; animation: riseIn 0.4s ease 0.05s both;
+        }
+        .list-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 22px; border-bottom: 1px solid var(--line);
+        }
+        .list-head h2 { font-size: 14px; font-weight: 700; }
+        .list-head .count {
+            font-size: 12px; color: var(--muted); background: var(--bg);
+            padding: 3px 10px; border-radius: 20px; font-weight: 600;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 22px; text-align: left; font-size: 13.5px; vertical-align: middle; }
+        thead th {
+            font-size: 11px; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--line); padding-top: 12px; padding-bottom: 12px;
+        }
+        tbody tr.staff-row { border-bottom: 1px solid var(--line); transition: background 0.12s ease; }
+        tbody tr.staff-row:last-child { border-bottom: none; }
+        tbody tr.staff-row:hover { background: #fafbfc; }
+
+        .who { display: flex; align-items: center; gap: 12px; }
+        .avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--navy-800); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; letter-spacing: 0;
+            flex-shrink: 0;
+        }
+        .avatar.is-admin { background: linear-gradient(135deg, var(--navy-700), var(--navy-900)); box-shadow: 0 0 0 2px var(--admin-bg); }
+        .username { font-weight: 600; color: var(--navy-800); }
+
+        .role-pill {
+            display: inline-block; padding: 4px 11px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; text-transform: capitalize;
+        }
+        .role-pill.admin { background: var(--admin-bg); color: var(--admin-fg); }
+        .role-pill.staff { background: var(--staff-bg); color: var(--staff-fg); }
+
+        .actions { display: flex; gap: 8px; }
+        .icon-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 13px; border-radius: var(--radius-sm); font-size: 12px;
+            font-weight: 600; border: none; cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        .icon-btn svg { width: 13px; height: 13px; }
+        .icon-btn:active { transform: translateY(1px); }
+        .edit-btn { background: var(--bg); color: var(--navy-800); }
+        .edit-btn:hover { background: #e6eaee; }
+        .delete-btn { background: #fdecea; color: var(--danger); }
+        .delete-btn:hover { background: var(--danger); color: white; }
+        .save-btn { background: var(--success-bg); color: var(--success); }
+        .save-btn:hover { background: var(--success); color: white; }
+        .cancel-btn { background: var(--bg); color: var(--muted); }
+        .cancel-btn:hover { background: #e6eaee; }
+
+        .no-action { color: #b9c1c8; font-size: 16px; }
+
+        .edit-form-row {
+            display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+            padding: 4px 0;
+        }
+        .edit-form-row .field { min-width: 160px; }
+        .edit-form-row input { padding: 9px 12px 9px 36px; font-size: 13px; }
+
+        tr.edit-row td { background: #fafbfc; }
+        tr.row-enter td { animation: fadeSlideIn 0.22s ease; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: none; }
+        }
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .add-card, .list-card, tr.row-enter td { animation: none; }
+        }
+
+        @media (max-width: 640px) {
+            .container { margin-top: 28px; }
+            th:nth-child(2), td:nth-child(2) { display: none; }
+            .actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <span>Manage Staff</span>
+        <a href="/logout">Log Out</a>
+    </div>
+
+    <div class="container">
+        <div class="page-head">
+            <div class="eyebrow">Access control</div>
+            <h1>Manage Staff</h1>
+            <p>Add new staff accounts, update credentials, or remove access.</p>
+        </div>
+
+        <div class="add-card">
+            <h2>Add a new staff member</h2>
+            <form method="POST" class="form-row" autocomplete="off">
+                <div class="field">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" name="username" placeholder="Username" required autocomplete="off">
+                </div>
+                <div class="field">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" name="password" placeholder="Password" required autocomplete="new-password">
+                </div>
+                <button type="submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    Add Staff
+                </button>
+            </form>
+            {% if error %}
+            <div class="error-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ error }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="list-card">
+            <div class="list-head">
+                <h2>All accounts</h2>
+                <span class="count">{{ staff_list|length }} total</span>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Account</th><th>Role</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for s in staff_list %}
+                    <tr class="staff-row" id="view-{{ s[0] }}">
+                        <td>
+                            <div class="who">
+                                <div class="avatar {% if s[3] == 'admin' %}is-admin{% endif %}">{{ s[1][0]|upper }}</div>
+                                <span class="username">{{ s[1] }}</span>
+                            </div>
+                        </td>
+                        <td><span class="role-pill {{ s[3] }}">{{ s[3] }}</span></td>
+                        <td>
+                            {% if s[3] != 'admin' %}
+                            <div class="actions">
+                                <button type="button" class="icon-btn edit-btn" onclick="toggleEdit({{ s[0] }})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+                                    Edit
+                                </button>
+                                <form method="POST" action="{{ url_for('delete_staff', staff_id=s[0]) }}" onsubmit="return confirm('Delete {{ s[1] }}? This cannot be undone.');">
+                                    <button type="submit" class="icon-btn delete-btn">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <span class="no-action">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if s[3] != 'admin' %}
+                    <tr class="edit-row" id="edit-{{ s[0] }}" style="display:none;">
+                        <td colspan="3">
+                            <form method="POST" action="{{ url_for('edit_staff', staff_id=s[0]) }}" class="edit-form-row" autocomplete="off">
+                                <div class="field">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <input type="text" name="username" value="{{ s[1] }}" placeholder="Username" autocomplete="off">
+                                </div>
+                                <div class="field">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <input type="password" name="password" placeholder="New password (leave blank to keep)" autocomplete="new-password">
+                                </div>
+                                <button type="submit" class="icon-btn save-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                                    Save
+                                </button>
+                                <button type="button" class="icon-btn cancel-btn" onclick="toggleEdit({{ s[0] }})">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function toggleEdit(id) {
+            var viewRow = document.getElementById('view-' + id);
+            var editRow = document.getElementById('edit-' + id);
+            var isHidden = editRow.style.display === 'none' || editRow.style.display === '';
+            if (isHidden) {
+                viewRow.style.display = 'none';
+                editRow.style.display = 'table-row';
+                editRow.classList.add('row-enter');
+            } else {
+                viewRow.style.display = 'table-row';
+                editRow.style.display = 'none';
+                editRow.classList.remove('row-enter');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leave Approval</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; color: #1a3a5c; }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2438 100%);
+            color: white; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar a { color: white; text-decoration: none; font-size: 13px; opacity: 0.85; }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
+        h1 { font-size: 24px; margin-bottom: 24px; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f2f4; vertical-align: middle; }
+        th { background: #f4f6f8; font-weight: 600; color: #6b7785; }
+
+        .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-pill.pending { background: #fdf3e3; color: #b8860b; }
+        .status-pill.approved { background: #e6f4ea; color: #2e7d32; }
+        .status-pill.rejected { background: #fdecea; color: #c0392b; }
+
+        .action-btn {
+            padding: 6px 14px; border-radius: 6px; font-size: 12px;
+            font-weight: 600; border: none; cursor: pointer; margin-right: 6px;
+        }
+        .approve-btn { background: #2e7d32; color: white; }
+        .reject-btn { background: #c0392b; color: white; }
+
+        .empty-state { color: #9aa5b1; font-size: 14px; padding: 20px 0; }
+
+        .leave-warning {
+            display: block; margin-top: 4px; font-size: 11px;
+            font-weight: 600; color: #b8860b;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <span>Leave Approval</span>
+        <a href="/logout">Log Out</a>
+    </div>
+
+    <div class="container">
+        <h1>Leave Requests</h1>
+
+        {% if requests %}
+        <table>
+            <tr><th>Staff</th><th>Start</th><th>End</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+            {% for r in requests %}
+            <tr>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+                <td>{{ r[4] }}</td>
+                <td>
+                    <span class="status-pill {{ r[5]|lower }}">{{ r[5] }}</span>
+                    {% if r[0] in request_warnings %}
+                    <span class="leave-warning">⚠ {{ r[1] }} already has {{ request_warnings[r[0]]|join(' and ') }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r[5] == 'Pending' %}
+                    {% if r[0] in request_warnings %}
+                    {% set warning_text = r[1] ~ ' already has ' ~ (request_warnings[r[0]]|join(' and ')) ~ '. Approve this request anyway?' %}
+                    <form method="POST" action="{{ url_for('leave_action', leave_id=r[0], action='Approved') }}" style="display:inline;"
+                          onsubmit="return confirm({{ warning_text|tojson }});">
+                        <button type="submit" class="action-btn approve-btn">Approve</button>
+                    </form>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('leave_action', leave_id=r[0], action='Approved') }}" style="display:inline;">
+                        <button type="submit" class="action-btn approve-btn">Approve</button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('leave_action', leave_id=r[0], action='Rejected') }}" style="display:inline;">
+                        <button type="submit" class="action-btn reject-btn">Reject</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="empty-state">No leave requests yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

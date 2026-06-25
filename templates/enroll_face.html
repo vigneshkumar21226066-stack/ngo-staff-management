@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Enrollment</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; color: #1a3a5c; }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2438 100%);
+            color: white; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar a { color: white; text-decoration: none; font-size: 13px; opacity: 0.85; }
+
+        .container { max-width: 600px; margin: 40px auto; padding: 0 24px; text-align: center; }
+        h1 { font-size: 22px; margin-bottom: 8px; }
+        p.subtitle { font-size: 13px; color: #6b7785; margin-bottom: 24px; }
+
+        #video {
+            width: 100%; max-width: 400px;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        .controls { margin-top: 20px; }
+
+        button {
+            background: #1a3a5c; color: white; border: none;
+            padding: 12px 24px; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer; margin: 0 6px;
+        }
+        button:hover { background: #0f2438; }
+        button:disabled { background: #b0b8c0; cursor: not-allowed; }
+
+        .progress { margin-top: 16px; font-size: 13px; color: #6b7785; }
+        .captured-count { font-weight: 700; color: #1a3a5c; }
+
+        .result-msg {
+            margin-top: 16px; font-size: 14px; padding: 12px 16px;
+            border-radius: 8px; display: none;
+        }
+        .result-msg.success { background: #e6f4ea; color: #2e7d32; display: block; }
+        .result-msg.error { background: #fdecea; color: #c0392b; display: block; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <span>Face Enrollment</span>
+        <a href="/logout">Log Out</a>
+    </div>
+
+    <div class="container">
+        <h1>Enroll Your Face</h1>
+        <p class="subtitle">We'll capture 3 photos of your face to recognize you for attendance.</p>
+
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+
+        <div class="controls">
+            <button id="captureBtn" onclick="capturePhoto()">Capture Photo</button>
+        </div>
+
+        <div class="progress">Captured: <span class="captured-count" id="count">0</span> / 3</div>
+        <div id="resultMsg" class="result-msg"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const countEl = document.getElementById('count');
+        const msg = document.getElementById('resultMsg');
+        let capturedCount = 0;
+        const totalNeeded = 3;
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => {
+                msg.textContent = "Camera access denied. Please allow camera access to enroll.";
+                msg.className = 'result-msg error';
+            });
+
+        function capturePhoto() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            captureBtn.disabled = true;
+            captureBtn.textContent = 'Processing...';
+
+            canvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('photo', blob, 'capture.jpg');
+
+                fetch('/face/enroll', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        captureBtn.disabled = false;
+                        captureBtn.textContent = 'Capture Photo';
+
+                        if (data.success) {
+                            capturedCount++;
+                            countEl.textContent = capturedCount;
+                            msg.textContent = data.message;
+                            msg.className = 'result-msg success';
+
+                            if (capturedCount >= totalNeeded) {
+                                captureBtn.disabled = true;
+                                captureBtn.textContent = 'Enrollment Complete';
+                                msg.textContent = "Enrollment complete! You can now use face check-in for attendance.";
+                            }
+                        } else {
+                            msg.textContent = data.message;
+                            msg.className = 'result-msg error';
+                        }
+                    });
+            }, 'image/jpeg');
+        }
+    </script>
+</body>
+</html>

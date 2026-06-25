@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leave Request</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; color: #1a3a5c; }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2438 100%);
+            color: white; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar a { color: white; text-decoration: none; font-size: 13px; opacity: 0.85; }
+
+        .container { max-width: 700px; margin: 40px auto; padding: 0 24px; }
+        h1 { font-size: 24px; margin-bottom: 24px; }
+
+        .form-card {
+            background: white; border-radius: 14px; padding: 26px;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.06); margin-bottom: 32px;
+        }
+        .form-row { margin-bottom: 16px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        input[type="date"], textarea {
+            width: 100%; padding: 10px 12px;
+            border: 1.5px solid #dde3e8; border-radius: 8px; font-size: 14px;
+            font-family: inherit;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        .date-row { display: flex; gap: 12px; }
+        .date-row .form-row { flex: 1; }
+
+        button {
+            background: #1a3a5c; color: white; border: none;
+            padding: 12px 24px; border-radius: 8px; font-size: 14px;
+            font-weight: 600; cursor: pointer;
+        }
+        button:hover { background: #0f2438; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f2f4; }
+        th { background: #f4f6f8; font-weight: 600; color: #6b7785; }
+
+        .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-pill.pending { background: #fdf3e3; color: #b8860b; }
+        .status-pill.approved { background: #e6f4ea; color: #2e7d32; }
+        .status-pill.rejected { background: #fdecea; color: #c0392b; }
+
+        .empty-state { color: #9aa5b1; font-size: 14px; padding: 16px 0; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <span>Leave Request</span>
+        <a href="/logout">Log Out</a>
+    </div>
+
+    <div class="container">
+        <h1>Leave Request</h1>
+
+        <div class="form-card">
+            <form method="POST">
+                <div class="date-row">
+                    <div class="form-row">
+                        <label>Start Date</label>
+                        <input type="date" name="start_date" required>
+                    </div>
+                    <div class="form-row">
+                        <label>End Date</label>
+                        <input type="date" name="end_date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Reason</label>
+                    <textarea name="reason" placeholder="Briefly explain your reason for leave" required></textarea>
+                </div>
+                <button type="submit">Submit Request</button>
+            </form>
+        </div>
+
+        <h2 style="font-size:18px; margin-bottom:16px;">My Requests</h2>
+        {% if requests %}
+        <table>
+            <tr><th>Start</th><th>End</th><th>Reason</th><th>Status</th></tr>
+            {% for r in requests %}
+            <tr>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+                <td>{{ r[4] }}</td>
+                <td><span class="status-pill {{ r[5]|lower }}">{{ r[5] }}</span></td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="empty-state">No leave requests yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

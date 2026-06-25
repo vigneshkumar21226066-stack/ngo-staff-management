@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ subfolder }} — {{ programme }} — Photos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1a3a5c;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2438 100%);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .topbar a { color: white; text-decoration: none; font-size: 13px; opacity: 0.85; }
+        .topbar a:hover { opacity: 1; }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
+
+        .breadcrumb { font-size: 13px; color: #6b7785; margin-bottom: 10px; }
+        .breadcrumb a { color: #1a3a5c; text-decoration: none; font-weight: 600; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        h1 { font-size: 24px; }
+
+        .btn-download-folder {
+            background: #eef3f8;
+            color: #1a3a5c;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-download-folder:hover { background: #dde8f2; }
+
+        .upload-card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        input[type="file"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 1.5px solid #dde3e8;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        button { cursor: pointer; }
+
+        .upload-card button {
+            background: #1a3a5c;
+            color: white;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .upload-card button:hover { background: #0f2438; }
+
+        .selection-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #4a5a63;
+            flex-wrap: wrap;
+        }
+        .selection-bar label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+        .selection-bar input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+
+        .btn-download-selected {
+            background: #1a3a5c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .btn-download-selected:disabled { background: #b0b8c0; cursor: not-allowed; }
+        .btn-download-selected:not(:disabled):hover { background: #0f2438; }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .photo-card {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .photo-card img { width: 100%; height: 150px; object-fit: cover; display: block; cursor: pointer; }
+        .photo-info {
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #9aa5b1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .photo-checkbox {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .btn-delete-photo {
+            background: rgba(220,60,50,0.9);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 11px;
+            padding: 3px 7px;
+            font-weight: 600;
+        }
+        .btn-delete-photo:hover { background: #c0392b; }
+
+        .empty-state { color: #9aa5b1; font-size: 14px; padding: 20px 0; }
+
+        /* Lightbox */
+        .lightbox-overlay {
+            display: none;
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.85);
+            align-items: center; justify-content: center;
+            z-index: 200;
+            padding: 24px;
+        }
+        .lightbox-overlay.show { display: flex; }
+        .lightbox-overlay img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 6px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 28px;
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            cursor: pointer;
+            line-height: 1;
+            background: none;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="{{ url_for('photo_folder', programme=programme) }}">← {{ programme }}</a>
+        <span>{{ subfolder }}</span>
+        <a href="/logout">Log Out</a>
+    </div>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="/photos">All Folders</a> /
+            <a href="{{ url_for('photo_folder', programme=programme) }}">{{ programme }}</a> /
+            {{ subfolder }}
+        </div>
+
+        <div class="page-header">
+            <h1>📁 {{ subfolder }}</h1>
+            <a href="{{ url_for('download_subfolder', programme=programme, subfolder=subfolder) }}" class="btn-download-folder">⬇ Download Folder</a>
+        </div>
+
+        <form class="upload-card" method="POST" enctype="multipart/form-data">
+            <input type="file" name="photo" accept="image/*" required>
+            <button type="submit">Upload Photo</button>
+        </form>
+
+        {% if photos %}
+        <div class="selection-bar">
+            <label><input type="checkbox" id="selectAllBox" onchange="toggleSelectAll(this)"> Select All</label>
+            <button class="btn-download-selected" id="downloadSelectedBtn" onclick="downloadSelected()" disabled>⬇ Download Selected</button>
+        </div>
+        {% endif %}
+
+        <div class="photo-grid">
+            {% if photos %}
+                {% for photo in photos %}
+                <div class="photo-card">
+                    <input type="checkbox" class="photo-checkbox photo-select" value="{{ photo[0] }}" onchange="updateDownloadButton()">
+                    <img src="{{ url_for('static', filename='uploads/' + photo[1]) }}" alt="" onclick="openLightbox('{{ url_for('static', filename='uploads/' + photo[1]) }}')">
+                    <div class="photo-info">
+                        <span>by {{ photo[4] }}</span>
+                        <button class="btn-delete-photo" onclick="deletePhoto({{ photo[0] }})">🗑</button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-state">No photos in this subfolder yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox(event)">
+        <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+        <img id="lightboxImg" src="" alt="">
+    </div>
+
+    <form id="downloadSelectedForm" method="POST" action="/photos/download_selected" style="display:none;"></form>
+
+    <script>
+        function deletePhoto(photoId) {
+            if (!confirm('Delete this photo? This cannot be undone.')) return;
+            fetch(`/photos/delete_photo/${photoId}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) location.reload();
+                    else alert(data.message || 'Could not delete photo.');
+                })
+                .catch(() => alert('Could not delete photo. Please try again.'));
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightboxOverlay').classList.add('show');
+        }
+
+        function closeLightbox(event) {
+            document.getElementById('lightboxOverlay').classList.remove('show');
+            document.getElementById('lightboxImg').src = '';
+        }
+
+        function toggleSelectAll(checkbox) {
+            document.querySelectorAll('.photo-select').forEach(cb => cb.checked = checkbox.checked);
+            updateDownloadButton();
+        }
+
+        function updateDownloadButton() {
+            const checked = document.querySelectorAll('.photo-select:checked').length;
+            document.getElementById('downloadSelectedBtn').disabled = checked === 0;
+
+            const all = document.querySelectorAll('.photo-select').length;
+            document.getElementById('selectAllBox').checked = (checked === all && all > 0);
+        }
+
+        function downloadSelected() {
+            const form = document.getElementById('downloadSelectedForm');
+            form.innerHTML = '';
+            document.querySelectorAll('.photo-select:checked').forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'photo_ids';
+                input.value = cb.value;
+                form.appendChild(input);
+            });
+            form.submit();
+        }
+    </script>
+</body>
+</html>

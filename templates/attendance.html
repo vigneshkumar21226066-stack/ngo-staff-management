@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1a3a5c;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2438 100%);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .topbar a { color: white; text-decoration: none; font-size: 13px; opacity: 0.85; }
+        .topbar a:hover { opacity: 1; }
+
+        .container { max-width: 700px; margin: 40px auto; padding: 0 24px; }
+
+        h1 { font-size: 24px; margin-bottom: 24px; }
+
+        .check-in-card {
+            background: white;
+            border-radius: 14px;
+            padding: 32px;
+            text-align: center;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+            margin-bottom: 32px;
+        }
+
+        .check-in-card p {
+            font-size: 13px;
+            color: #6b7785;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #1a3a5c;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover { background: #0f2438; }
+        button:disabled { background: #b0b8c0; cursor: not-allowed; }
+
+        .result-msg {
+            margin-top: 18px;
+            font-size: 14px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: none;
+        }
+        .result-msg.success { background: #e6f4ea; color: #2e7d32; display: block; }
+        .result-msg.error { background: #fdecea; color: #c0392b; display: block; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #f0f2f4; }
+        th { background: #f4f6f8; font-weight: 600; color: #6b7785; }
+
+        .empty-state { color: #9aa5b1; font-size: 14px; padding: 16px 0; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <span>Attendance</span>
+        <a href="/logout">Log Out</a>
+    </div>
+
+    <div class="container">
+        <h1>Attendance</h1>
+
+        <div class="check-in-card">
+            <p>Mark your attendance for today. Your location will be checked against the office location.</p>
+            <button id="checkInBtn" onclick="markAttendance()">Mark Attendance</button>
+            <div id="resultMsg" class="result-msg"></div>
+        </div>
+
+        <h2 style="font-size:18px; margin-bottom:16px;">My Attendance History</h2>
+        {% if records %}
+        <table>
+            <tr><th>Date</th><th>Time</th><th>Status</th></tr>
+            {% for r in records %}
+            <tr><td>{{ r[2] }}</td><td>{{ r[3] }}</td><td>{{ r[6] }}</td></tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="empty-state">No attendance records yet.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function markAttendance() {
+            const btn = document.getElementById('checkInBtn');
+            const msg = document.getElementById('resultMsg');
+            btn.disabled = true;
+            btn.textContent = 'Checking location...';
+
+            if (!navigator.geolocation) {
+                msg.textContent = "Your browser doesn't support location access.";
+                msg.className = 'result-msg error';
+                btn.disabled = false;
+                btn.textContent = 'Mark Attendance';
+                return;
+            }
+
+            // Safety net: if neither callback fires within 12s, unstick the button.
+            // (Some browsers silently hang getCurrentPosition on insecure origins.)
+            var settled = false;
+            var watchdog = setTimeout(function() {
+                if (settled) return;
+                settled = true;
+                msg.textContent = "Location request timed out or was blocked. If you're on http://127.0.0.1, try http://localhost instead, or use HTTPS — many browsers block geolocation on plain-IP origins.";
+                msg.className = 'result-msg error';
+                btn.disabled = false;
+                btn.textContent = 'Mark Attendance';
+            }, 12000);
+
+            navigator.geolocation.getCurrentPosition(function(position) {
+                if (settled) return;
+                settled = true;
+                clearTimeout(watchdog);
+
+                fetch('/attendance/checkin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    msg.textContent = data.message;
+                    msg.className = data.success ? 'result-msg success' : 'result-msg error';
+                    btn.disabled = false;
+                    btn.textContent = 'Mark Attendance';
+                    if (data.success) {
+                        setTimeout(() => location.reload(), 1200);
+                    }
+                })
+                .catch(function(err) {
+                    msg.textContent = "Could not reach the server: " + err.message;
+                    msg.className = 'result-msg error';
+                    btn.disabled = false;
+                    btn.textContent = 'Mark Attendance';
+                });
+            }, function(error) {
+                if (settled) return;
+                settled = true;
+                clearTimeout(watchdog);
+
+                // error.code: 1 = PERMISSION_DENIED, 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT
+                var reasons = {
+                    1: "Location permission denied. Please allow location access in your browser's site settings and try again.",
+                    2: "Location unavailable. Your device couldn't determine a position (try moving near a window or enabling Wi-Fi/GPS).",
+                    3: "Location request timed out. Try again."
+                };
+                msg.textContent = reasons[error.code] || ("Location error: " + error.message);
+                msg.className = 'result-msg error';
+                btn.disabled = false;
+                btn.textContent = 'Mark Attendance';
+            }, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        }
+    </script>
+</body>
+</html>

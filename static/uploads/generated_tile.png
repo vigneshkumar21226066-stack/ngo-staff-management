@@ -1,0 +1,755 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1"><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>
+	DTAMILNADU TRADERS
+</title><link href="css/bootstrap.min.css" rel="stylesheet" /><link href="css/font-awesome.min.css" rel="stylesheet" /><link href="css/global.css" rel="stylesheet" /><link href="css/blog.css" rel="stylesheet" /><link href="https://fonts.googleapis.com/css2?family=Playfair+Display&amp;display=swap" rel="stylesheet" /><link href="https://fonts.googleapis.com/css2?family=Poppins&amp;display=swap" rel="stylesheet" />
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script src="js/bootstrap.bundle.min.js"></script>
+
+    
+<script language="javascript" type="text/javascript">
+    function accept(id) { location.href = 'Userpurchase1.aspx?id=' + id; }
+</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+    body { font-family: 'Sora', sans-serif; }
+    #canvas {
+        border: 2px solid #334155; cursor: crosshair;
+        border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        background: #fff; max-width: 100%;
+    }
+    .color-box {
+        width: 30px; height: 30px; border-radius: 50%;
+        border: 2px solid #fff; box-shadow: 0 0 0 2px #cbd5e1;
+        display: inline-block; cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s;
+        vertical-align: middle; margin: 2px;
+    }
+    .color-box:hover  { transform: scale(1.2); box-shadow: 0 0 0 3px #6366f1; }
+    .color-box.active { box-shadow: 0 0 0 3px #6366f1; transform: scale(1.15); }
+    .tool-btn {
+        border: 1.5px solid #cbd5e1; background: #fff;
+        border-radius: 8px; padding: 5px 11px;
+        font-size: 0.82rem; font-weight: 600;
+        cursor: pointer; transition: all 0.15s; color: #334155;
+    }
+    .tool-btn:hover  { border-color: #6366f1; color: #6366f1; background: #f0f4ff; }
+    .tool-btn.active { border-color: #6366f1; background: #6366f1; color: #fff; }
+    #aiPanel {
+        background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
+        border: 1.5px solid #c7d2fe; border-radius: 14px;
+        padding: 20px; margin-top: 20px; display: none;
+    }
+    #aiPanel h5 { color: #4f46e5; font-weight: 700; margin-bottom: 14px; }
+    .ai-section {
+        background: #fff; border: 1px solid #e0e7ff;
+        border-radius: 10px; padding: 14px 16px; margin-bottom: 12px;
+    }
+    .ai-section h6 {
+        color: #4f46e5; font-weight: 700; font-size: 0.88rem;
+        margin-bottom: 8px; padding-bottom: 6px;
+        border-bottom: 1px solid #e0e7ff;
+        text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .ai-section p { font-size: 0.93rem; color: #1e293b; line-height: 1.7; margin: 0; }
+    .recognition-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        color: #fff; border-radius: 30px; padding: 6px 18px;
+        font-size: 1rem; font-weight: 700; margin-bottom: 6px;
+    }
+    .style-badge {
+        display: inline-block;
+        background: linear-gradient(90deg, #0891b2, #6366f1);
+        color: #fff; border-radius: 20px;
+        padding: 5px 16px; font-size: 0.85rem; font-weight: 600;
+    }
+    .suggestion-item {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 9px 0; border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem; color: #334155; line-height: 1.6;
+    }
+    .suggestion-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .suggestion-num {
+        background: #6366f1; color: #fff; border-radius: 50%;
+        width: 24px; height: 24px; display: flex;
+        align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+    .palette-chip {
+        display: inline-block; width: 38px; height: 38px;
+        border-radius: 8px; border: 2px solid #e2e8f0;
+        margin: 3px; vertical-align: middle; cursor: pointer;
+        transition: transform 0.15s, border-color 0.15s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .palette-chip:hover { transform: scale(1.3); border-color: #6366f1; }
+    #aiLoader {
+        display: none; text-align: center;
+        padding: 28px; color: #6366f1; font-weight: 600;
+    }
+    .spinner-dot {
+        display: inline-block; width: 11px; height: 11px;
+        border-radius: 50%; background: #6366f1; margin: 0 3px;
+        animation: bounce 1.2s infinite ease-in-out;
+    }
+    .spinner-dot:nth-child(2) { animation-delay: 0.2s; }
+    .spinner-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+        40%           { transform: scale(1.1); opacity: 1; }
+    }
+    .btn-ai {
+        background: linear-gradient(90deg, #6366f1, #8b5cf6);
+        color: #fff; border: none; border-radius: 8px;
+        font-weight: 600; padding: 8px 22px; transition: opacity 0.2s;
+    }
+    .btn-ai:hover { opacity: 0.85; color: #fff; }
+    .btn-generate {
+        background: linear-gradient(90deg, #059669, #0891b2);
+        color: #fff; border: none; border-radius: 8px;
+        font-weight: 600; padding: 8px 22px; transition: opacity 0.2s;
+        cursor: pointer;
+    }
+    .btn-generate:hover { opacity: 0.85; }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+    .card { border-radius: 16px; }
+    .toolbar-label {
+        font-size: 0.78rem; color: #64748b; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .section-divider { border: none; border-top: 1px solid #e2e8f0; margin: 10px 0; }
+    #generatedSection {
+        background: linear-gradient(135deg, #f0fdf4, #ecfeff);
+        border: 1.5px solid #6ee7b7;
+        border-radius: 14px; padding: 20px; margin-top: 16px; display: none;
+    }
+    #generatedSection h5 { color: #059669; font-weight: 700; margin-bottom: 14px; }
+    #generatedImageBox {
+        text-align: center; padding: 10px;
+        background: #fff; border-radius: 10px;
+        border: 1px solid #d1fae5;
+    }
+    #generatedImageBox img {
+        max-width: 100%; border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+    #genLoader {
+        display: none; text-align: center;
+        padding: 28px; color: #059669; font-weight: 600;
+    }
+    .gen-spinner {
+        display: inline-block; width: 11px; height: 11px;
+        border-radius: 50%; background: #059669; margin: 0 3px;
+        animation: bounce 1.2s infinite ease-in-out;
+    }
+    .gen-spinner:nth-child(2) { animation-delay: 0.2s; }
+    .gen-spinner:nth-child(3) { animation-delay: 0.4s; }
+    #savedBadge {
+        display: none;
+        background: #059669; color: #fff;
+        border-radius: 20px; padding: 4px 16px;
+        font-size: 0.85rem; font-weight: 600; margin-top: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<form method="post" action="./Newrequest.aspx" id="form1" enctype="multipart/form-data">
+<div class="aspNetHidden">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="6XSflCG5jgRvMN7WPNTLDwIpJJtByaVVcvI/ef7k1cNhmn+dwYV3LyPLFXLWr/T+pApNvV8oeGl0NA6dntbqtV6jXQ9Oqmf2uoTuH2zda2n3U7rGOtyLZ7pMVSmTMaH2nUgFgsnjWvB6V9CGFuJo4A==" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form1'];
+if (!theForm) {
+    theForm = document.form1;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/dtamil/WebResource.axd?d=pynGkmcFUV13He1Qd6_TZBizuMcbEKL5_-lZ4exR9DZxwJ8L9QW0V1IK9VbmzyLBZi-1NTFKg0-yICmYbHlVAw2&amp;t=638883470380000000" type="text/javascript"></script>
+
+
+<script src="/dtamil/ScriptResource.axd?d=D9drwtSJ4hBA6O8UhT6CQtdsKAAAyczLUqyd7xnmoA5SEDhD-mrF0DTuh5BATMnyZIGVORxtrJPftAXyV-Mw3caRepU2X1RdAIf75oMjRx6jks5TbqgkqCSFQAZE638E8rWCiAF7pim2y7lZTplevRYAOvUmflt3ghjTXp6zbAs1&amp;t=74a40145" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+if (typeof(Sys) === 'undefined') throw new Error('ASP.NET Ajax client-side framework failed to load.');
+//]]>
+</script>
+
+<script src="/dtamil/ScriptResource.axd?d=JnUc-DEDOM5KzzVKtsL1teOwn3c9t7rPxjwZajqL9siyqq1tKFR3QltegWs2K5WtU571EGu6qY8JZ69m9y9UIB7LEXRr-kmfDGK2gec-uVlUC6PeUgS4vPtv80ukvdQuuPiEHPKOgAv7avZjD5av42wc7zbrmXjmvFo_9QsAYkqs0xHzsKSGnBJPQIjiJ7pu0&amp;t=74a40145" type="text/javascript"></script>
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="FCED753D" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="G7J3MBsZj2HyzJ/jtF4M4Uz7kU0zboLOcYHFGmOxV54XbQvcBU8Gc6n2XXVjjwHWhPDhugxwXA6yjJZLnBOAzWCjC4vuySlqRMNpzjVWylle9nIvdRUIibFhxt0bM2wRsrKXLvVsCPQLJeG1JgLFY0s/mJpPO+y+jn3TVkw2cIq75d8gnP+le1B8oEkBDy23" />
+</div>
+
+    <!-- 🔥 IMPORTANT: ScriptManager ADD HERE -->
+    <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$ScriptManager1', 'form1', [], [], [], 90, 'ctl00');
+//]]>
+</script>
+
+
+<div>
+
+<div class="main_o">
+ <div class="main_o1 bg_back">
+
+<section id="header">
+<nav class="navbar navbar-expand-md navbar-light p-0 px-3" id="navbar_sticky">
+  <div class="container-fluid">
+    <a class="text-white p-0 navbar-brand fw-bold me-0" href="index.aspx">
+        <i class="fa fa-futbol-o me-1 col_light"></i>DTamilnadu Traders
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+	   <ul class="navbar-nav mb-0 ms-auto">
+
+        <li class="nav-item">
+          <a class="nav-link" href="Userhome.aspx">Home</a>
+        </li>
+
+		<li class="nav-item">
+          <a class="nav-link" href="Product.aspx">Product</a>
+        </li>
+
+		<li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            Orders
+          </a>
+          <ul class="dropdown-menu drop_1">
+            <li><a class="dropdown-item" href="Uservieworder.aspx">View My Order</a></li>
+            <li><a class="dropdown-item border-0" href="Newrequest.aspx">New Request</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="RoomVisualizer.aspx">🏠 Room Visualizer</a>
+        </li>
+
+		<li class="nav-item">
+          <a class="nav-link active" href="viewreqstatus.aspx">View Status</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link active" href="Userlogin.aspx">Logout</a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+</section>
+
+ </div>
+</div>
+
+<section class="admin-login-bg">
+
+    
+<div class="container mt-4 mb-5">
+<div class="card p-4 shadow">
+
+    <div class="text-center mb-3">
+        <h4 class="fw-bold" style="color:#4f46e5;">&#127912; Tile Design Studio</h4>
+        <p class="text-muted mb-0" style="font-size:0.9rem;">Draw anything - AI will recognize, suggest improvements, and generate a realistic tile image</p>
+    </div>
+
+    <div class="mb-3 p-3" style="background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+        <label class="toolbar-label d-block mb-2">Upload White Tile (Optional)</label>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <input type="file" name="ctl00$ContentPlaceHolder1$FileUpload1" id="ContentPlaceHolder1_FileUpload1" class="form-control" style="max-width:300px;" />
+            <input type="submit" name="ctl00$ContentPlaceHolder1$ButtonLoad" value="Load Image" id="ContentPlaceHolder1_ButtonLoad" class="btn btn-secondary btn-sm" />
+        </div>
+    </div>
+
+    <div class="p-3 mb-3" style="background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+        <div class="mb-2">
+            <span class="toolbar-label">Color</span>
+            <div class="mt-1" id="colorSwatches">
+                <div class="color-box active" style="background:#e11d48" onclick="changeColor('#e11d48',this)"></div>
+                <div class="color-box" style="background:#2563eb" onclick="changeColor('#2563eb',this)"></div>
+                <div class="color-box" style="background:#16a34a" onclick="changeColor('#16a34a',this)"></div>
+                <div class="color-box" style="background:#0f172a" onclick="changeColor('#0f172a',this)"></div>
+                <div class="color-box" style="background:#ca8a04" onclick="changeColor('#ca8a04',this)"></div>
+                <div class="color-box" style="background:#ea580c" onclick="changeColor('#ea580c',this)"></div>
+                <div class="color-box" style="background:#7c3aed" onclick="changeColor('#7c3aed',this)"></div>
+                <div class="color-box" style="background:#0891b2" onclick="changeColor('#0891b2',this)"></div>
+                <div class="color-box" style="background:#db2777" onclick="changeColor('#db2777',this)"></div>
+                <div class="color-box" style="background:#65a30d" onclick="changeColor('#65a30d',this)"></div>
+                <div class="color-box" style="background:#ffffff;border:2px solid #cbd5e1;" onclick="changeColor('#ffffff',this)"></div>
+                <input type="color" id="colorPicker" value="#e11d48"
+                    onchange="changeColor(this.value,null)"
+                    style="width:34px;height:34px;border:none;cursor:pointer;border-radius:50%;vertical-align:middle;margin:2px;" />
+            </div>
+        </div>
+        <hr class="section-divider" />
+        <div class="mb-2">
+            <span class="toolbar-label">Draw Tool</span>
+            <div class="mt-1 d-flex flex-wrap gap-1">
+                <button type="button" class="tool-btn active" id="btnDraw"     onclick="setTool('draw')">Brush</button>
+                <button type="button" class="tool-btn"        id="btnErase"    onclick="setTool('erase')">Erase</button>
+                <button type="button" class="tool-btn"        id="btnLine"     onclick="setTool('line')">Line</button>
+                <button type="button" class="tool-btn"        id="btnRect"     onclick="setTool('rect')">Rectangle</button>
+                <button type="button" class="tool-btn"        id="btnCircle"   onclick="setTool('circle')">Circle</button>
+                <button type="button" class="tool-btn"        id="btnTriangle" onclick="setTool('triangle')">Triangle</button>
+                <button type="button" class="tool-btn"        id="btnStar"     onclick="setTool('star')">Star</button>
+                <button type="button" class="tool-btn"        id="btnDiamond"  onclick="setTool('diamond')">Diamond</button>
+                <button type="button" class="tool-btn"        id="btnArrow"    onclick="setTool('arrow')">Arrow</button>
+                <label style="display:inline-flex;align-items:center;gap:5px;font-size:0.82rem;color:#334155;cursor:pointer;margin-left:6px;">
+                    <input type="checkbox" id="chkFill" /> Fill Shape
+                </label>
+            </div>
+        </div>
+        <hr class="section-divider" />
+        <div>
+            <span class="toolbar-label">Brush / Border Size</span>
+            <div class="d-flex align-items-center gap-2 mt-1">
+                <input type="range" id="brushSize" min="1" max="30" value="3"
+                    style="width:110px;" oninput="updateBrush(this.value)" />
+                <span id="brushLabel" class="text-muted" style="font-size:0.85rem;min-width:28px;">3px</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center" style="position:relative;display:inline-block;width:100%;">
+        <canvas id="canvas" width="500" height="350"></canvas>
+        <canvas id="previewCanvas" width="500" height="350"
+            style="position:absolute;top:0;left:50%;transform:translateX(-50%);pointer-events:none;border-radius:10px;"></canvas>
+    </div>
+
+    <div class="text-center mt-3 d-flex flex-wrap justify-content-center gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="undoLast()">Undo</button>
+        <button type="button" class="btn btn-outline-danger btn-sm"    onclick="clearCanvas()">Clear</button>
+        <button type="button" class="btn btn-ai"                       onclick="askAI()">&#10024; AI Suggestions</button>
+        
+        <input type="hidden" name="ctl00$ContentPlaceHolder1$HiddenField1" id="ContentPlaceHolder1_HiddenField1" />
+        <input type="hidden" name="ctl00$ContentPlaceHolder1$HiddenField2" id="ContentPlaceHolder1_HiddenField2" />
+        <input type="submit" name="ctl00$ContentPlaceHolder1$ButtonSave" value="Save Design" onclick="saveImage();" id="ContentPlaceHolder1_ButtonSave" class="btn btn-success" />
+    </div>
+
+    <div id="aiPanel">
+        <h5>&#10024; AI Design Suggestions</h5>
+        <div id="aiLoader">
+            <span class="spinner-dot"></span><span class="spinner-dot"></span><span class="spinner-dot"></span>
+            <div class="mt-2" style="font-size:0.9rem;">AI is analyzing your drawing...</div>
+        </div>
+        <div id="aiResults" style="display:none;">
+            <div class="ai-section">
+                <h6>AI Recognized</h6>
+                <div class="recognition-badge" id="recognitionBadge">-</div>
+            </div>
+            <div class="ai-section">
+                <h6>Design Analysis</h6>
+                <p id="analysisText"></p>
+            </div>
+            <div class="ai-section">
+                <h6>Enhancement Suggestions</h6>
+                <div id="suggestionsList"></div>
+            </div>
+            <div class="ai-section">
+                <h6>AI Color Palette - click to draw</h6>
+                <div id="aiPalette"></div>
+            </div>
+            <div class="ai-section">
+                <h6>Style Direction</h6>
+                <span class="style-badge" id="styleText"></span>
+            </div>
+            <div class="ai-section text-center">
+                <h6>Generate Realistic Tile Image</h6>
+                <p style="font-size:0.88rem;color:#64748b;margin-bottom:12px;">
+                    AI will create a professional realistic tile image based on your drawing and suggestions
+                </p>
+                <button type="button" class="btn-generate" id="btnGenerate" onclick="generateRealisticImage()">
+                    &#127775; Generate Realistic Tile Image
+                </button>
+            </div>
+            <div class="ai-section">
+                <h6>Quick Apply Pattern</h6>
+                <div class="d-flex gap-1 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-outline-primary"   onclick="applyPattern('geometric')">Geometric</button>
+                    <button type="button" class="btn btn-sm btn-outline-success"   onclick="applyPattern('floral')">Floral</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning"   onclick="applyPattern('abstract')">Abstract</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger"    onclick="applyPattern('diagonal')">Diagonal</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="applyPattern('dots')">Dots</button>
+                    <button type="button" class="btn btn-sm btn-outline-info"      onclick="applyPattern('zigzag')">Zigzag</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark"      onclick="applyPattern('mandala')">Mandala</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary"   onclick="applyPattern('hexagon')">Hexagon</button>
+                    <button type="button" class="btn btn-sm btn-outline-success"   onclick="applyPattern('waves')">Waves</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning"   onclick="applyPattern('checkerboard')">Checkerboard</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger"    onclick="applyPattern('stars')">Stars</button>
+                    <button type="button" class="btn btn-sm btn-outline-info"      onclick="applyPattern('diamonds')">Diamonds</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark"      onclick="applyPattern('crosshatch')">Crosshatch</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary"   onclick="applyPattern('spiral')">Spiral</button>
+                    <button type="button" class="btn btn-sm btn-outline-success"   onclick="applyPattern('triangles')">Triangles</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning"   onclick="applyPattern('moroccan')">Moroccan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="generatedSection" style="display:none;">
+        <h5>&#127775; AI Generated Realistic Tile</h5>
+        <div id="genLoader">
+            <span class="gen-spinner"></span><span class="gen-spinner"></span><span class="gen-spinner"></span>
+            <div class="mt-2" style="font-size:0.9rem;color:#059669;">Generating your realistic tile image... this may take 20-30 seconds</div>
+        </div>
+        <div id="generatedImageBox" style="display:none;">
+            <img id="generatedImg" src="" alt="Generated Tile" />
+            <div class="mt-3">
+                <span id="savedBadge">&#10003; Saved to your account</span>
+            </div>
+            <div class="mt-2">
+                <a id="downloadLink" href="#" download="generated_tile.png"
+                    class="btn btn-sm btn-outline-success">&#8681; Download Image</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script type="text/javascript">
+var canvas        = document.getElementById("canvas");
+var previewCanvas = document.getElementById("previewCanvas");
+var ctx           = canvas.getContext("2d");
+var pctx          = previewCanvas.getContext("2d");
+var drawing       = false;
+var selectedColor = "#e11d48";
+var brushSize     = 3;
+var currentTool   = "draw";
+var snapshots     = [];
+var startX = 0, startY = 0;
+
+var aiSuggestionsText  = "";
+var aiRecognizedObject = "";
+var aiStyleName        = "";
+
+ctx.fillStyle = "#ffffff";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+snapshots.push(canvas.toDataURL());
+
+function changeColor(color, el) {
+    selectedColor = color;
+    if (currentTool === 'erase') setTool('draw');
+    var boxes = document.querySelectorAll('.color-box');
+    for (var i = 0; i < boxes.length; i++) boxes[i].classList.remove('active');
+    if (el) el.classList.add('active');
+    if (color.indexOf('#') === 0) document.getElementById('colorPicker').value = color;
+}
+function updateBrush(val) {
+    brushSize = parseInt(val);
+    document.getElementById('brushLabel').textContent = val + 'px';
+}
+function setTool(tool) {
+    currentTool = tool;
+    var tools = ['btnDraw','btnErase','btnLine','btnRect','btnCircle','btnTriangle','btnStar','btnDiamond','btnArrow'];
+    for (var i = 0; i < tools.length; i++) document.getElementById(tools[i]).classList.remove('active');
+    var map = { draw:'btnDraw',erase:'btnErase',line:'btnLine',rect:'btnRect',circle:'btnCircle',triangle:'btnTriangle',star:'btnStar',diamond:'btnDiamond',arrow:'btnArrow' };
+    if (map[tool]) document.getElementById(map[tool]).classList.add('active');
+}
+function loadBackground(imgUrl) {
+    var img = new Image();
+    img.onload = function() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        snapshots=[canvas.toDataURL()];
+    };
+    img.src = imgUrl;
+}
+
+canvas.onmousedown = function(e) {
+    drawing=true; startX=e.offsetX; startY=e.offsetY;
+    if (currentTool==='draw'||currentTool==='erase') { saveSnapshot(); ctx.beginPath(); ctx.moveTo(startX,startY); }
+};
+canvas.onmouseup = function(e) {
+    if (!drawing) return; drawing=false;
+    if (currentTool!=='draw'&&currentTool!=='erase') {
+        saveSnapshot(); pctx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
+        drawShape(ctx,startX,startY,e.offsetX,e.offsetY,currentTool,false);
+    }
+    ctx.beginPath();
+};
+canvas.onmouseleave = function() { drawing=false; ctx.beginPath(); pctx.clearRect(0,0,previewCanvas.width,previewCanvas.height); };
+canvas.onmousemove = function(e) {
+    if (!drawing) return;
+    if (currentTool==='draw'||currentTool==='erase') {
+        ctx.lineWidth=(currentTool==='erase')?brushSize*3:brushSize;
+        ctx.lineCap="round"; ctx.lineJoin="round";
+        ctx.strokeStyle=(currentTool==='erase')?"#ffffff":selectedColor;
+        ctx.lineTo(e.offsetX,e.offsetY); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(e.offsetX,e.offsetY);
+    } else {
+        pctx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
+        drawShape(pctx,startX,startY,e.offsetX,e.offsetY,currentTool,true);
+    }
+};
+
+canvas.addEventListener('touchstart',function(e){
+    e.preventDefault(); var rect=canvas.getBoundingClientRect();
+    startX=e.touches[0].clientX-rect.left; startY=e.touches[0].clientY-rect.top;
+    drawing=true;
+    if(currentTool==='draw'||currentTool==='erase'){saveSnapshot();ctx.beginPath();ctx.moveTo(startX,startY);}
+},{passive:false});
+canvas.addEventListener('touchmove',function(e){
+    e.preventDefault(); var rect=canvas.getBoundingClientRect();
+    var tx=e.touches[0].clientX-rect.left, ty=e.touches[0].clientY-rect.top;
+    if(currentTool==='draw'||currentTool==='erase'){
+        ctx.lineWidth=(currentTool==='erase')?brushSize*3:brushSize;
+        ctx.lineCap="round";ctx.lineJoin="round";
+        ctx.strokeStyle=(currentTool==='erase')?"#ffffff":selectedColor;
+        ctx.lineTo(tx,ty);ctx.stroke();ctx.beginPath();ctx.moveTo(tx,ty);
+    } else {
+        pctx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
+        drawShape(pctx,startX,startY,tx,ty,currentTool,true);
+    }
+},{passive:false});
+canvas.addEventListener('touchend',function(e){
+    if(!drawing) return; drawing=false;
+    if(currentTool!=='draw'&&currentTool!=='erase'){
+        var rect=canvas.getBoundingClientRect();
+        var tx=e.changedTouches[0].clientX-rect.left, ty=e.changedTouches[0].clientY-rect.top;
+        saveSnapshot(); pctx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
+        drawShape(ctx,startX,startY,tx,ty,currentTool,false);
+    }
+    ctx.beginPath();
+});
+
+function drawShape(c,x1,y1,x2,y2,type,isPreview){
+    var fill=document.getElementById('chkFill').checked;
+    c.save(); c.globalAlpha=isPreview?0.6:1.0;
+    c.strokeStyle=selectedColor; c.fillStyle=selectedColor;
+    c.lineWidth=brushSize; c.lineCap="round"; c.lineJoin="round";
+    var w=x2-x1,h=y2-y1,cx=(x1+x2)/2,cy=(y1+y2)/2;
+    var rx=Math.abs(w)/2,ry=Math.abs(h)/2;
+    var r=Math.sqrt(w*w+h*h)/2;
+    c.beginPath();
+    if(type==='line'){c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();}
+    else if(type==='rect'){c.rect(x1,y1,w,h);if(fill)c.fill();else c.stroke();}
+    else if(type==='circle'){c.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);if(fill)c.fill();else c.stroke();}
+    else if(type==='triangle'){c.moveTo(cx,y1);c.lineTo(x2,y2);c.lineTo(x1,y2);c.closePath();if(fill)c.fill();else c.stroke();}
+    else if(type==='star'){
+        var oR=r,iR=r*0.45,pts=5;
+        for(var i=0;i<pts*2;i++){var a=(i*Math.PI/pts)-Math.PI/2,rd=(i%2===0)?oR:iR;
+            if(i===0)c.moveTo(cx+rd*Math.cos(a),cy+rd*Math.sin(a));else c.lineTo(cx+rd*Math.cos(a),cy+rd*Math.sin(a));}
+        c.closePath();if(fill)c.fill();else c.stroke();
+    }
+    else if(type==='diamond'){c.moveTo(cx,y1);c.lineTo(x2,cy);c.lineTo(cx,y2);c.lineTo(x1,cy);c.closePath();if(fill)c.fill();else c.stroke();}
+    else if(type==='arrow'){
+        var hl=Math.max(15,r*0.35),ang=Math.atan2(y2-y1,x2-x1);
+        c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.beginPath();
+        c.moveTo(x2,y2);c.lineTo(x2-hl*Math.cos(ang-Math.PI/6),y2-hl*Math.sin(ang-Math.PI/6));
+        c.moveTo(x2,y2);c.lineTo(x2-hl*Math.cos(ang+Math.PI/6),y2-hl*Math.sin(ang+Math.PI/6));c.stroke();
+    }
+    c.restore();
+}
+
+function saveSnapshot(){snapshots.push(canvas.toDataURL());if(snapshots.length>40)snapshots.shift();}
+function undoLast(){if(!snapshots.length)return;var img=new Image();img.onload=function(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0);};img.src=snapshots.pop();}
+function clearCanvas(){saveSnapshot();ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);}
+function saveImage(){document.getElementById('ContentPlaceHolder1_HiddenField1').value=canvas.toDataURL("image/png");}
+
+function askAI() {
+    var panel=document.getElementById('aiPanel');
+    var loader=document.getElementById('aiLoader');
+    var results=document.getElementById('aiResults');
+    panel.style.display='block'; loader.style.display='block'; results.style.display='none';
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+    var imageData=canvas.toDataURL("image/png").split(',')[1];
+    fetch("AIDesign.ashx",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({imageData:imageData})})
+    .then(function(r){if(!r.ok)throw new Error("Server error: "+r.status);return r.json();})
+    .then(function(data){
+        loader.style.display='none';
+        if(data.error){document.getElementById('recognitionBadge').textContent='Error: '+data.error;results.style.display='block';return;}
+        parseAndDisplay(data.result||'');
+        results.style.display='block';
+    })
+    .catch(function(err){loader.style.display='none';document.getElementById('recognitionBadge').textContent='Error: '+err.message;results.style.display='block';});
+}
+
+function parseAndDisplay(text) {
+    aiSuggestionsText = text;
+    var lines=text.split('\n');
+    var recognition='';
+    for(var i=0;i<lines.length;i++){
+        if(lines[i].match(/Drawing Recognition|^\*\*1\./i)){
+            var c1=lines[i].replace(/.*Drawing Recognition[^:]*:/i,'').replace(/^\*\*1\.\s*/,'').replace(/\*\*/g,'').trim();
+            if(!c1&&lines[i+1])c1=lines[i+1].replace(/\*\*/g,'').trim();
+            if(c1){recognition=c1;break;}
+        }
+    }
+    if(!recognition){var bm=text.match(/\*\*([^*\n]+)\*\*/);if(bm)recognition=bm[1];}
+    aiRecognizedObject=recognition||'tile design';
+    document.getElementById('recognitionBadge').innerHTML=aiRecognizedObject;
+
+    var analysis='';
+    for(var i=0;i<lines.length;i++){
+        if(lines[i].match(/Design Analysis|^\*\*2\./i)){
+            var col=[];
+            for(var j=i+1;j<Math.min(i+6,lines.length);j++){
+                var l=lines[j].replace(/\*\*/g,'').trim();
+                if(l&&!l.match(/^\*\*[0-9]/)&&!l.match(/Enhancement|Color|Style/i))col.push(l);
+                else if(col.length)break;
+            }
+            analysis=col.join(' ');break;
+        }
+    }
+    document.getElementById('analysisText').textContent=analysis;
+
+    var sl=document.getElementById('suggestionsList');sl.innerHTML='';
+    var sc=0,inS=false;
+    for(var i=0;i<lines.length;i++){
+        if(lines[i].match(/Enhancement Suggestions|^\*\*3\./i)){inS=true;continue;}
+        if(inS&&lines[i].match(/Color Palette|PALETTE|^\*\*4\./i))break;
+        if(inS&&sc<3){
+            var l=lines[i].replace(/^[-*•]\s*/,'').replace(/\*\*/g,'').trim();
+            if(l&&l.length>10){sc++;sl.innerHTML+='<div class="suggestion-item"><div class="suggestion-num">'+sc+'</div><div>'+l+'</div></div>';}
+        }
+    }
+
+    var pm=text.match(/PALETTE:\s*(#[0-9a-fA-F]{3,6}(?:,\s*#[0-9a-fA-F]{3,6})*)/i);
+    var pd=document.getElementById('aiPalette');pd.innerHTML='';
+    if(pm){
+        var cols=pm[1].split(',');
+        for(var c=0;c<cols.length;c++){(function(hex){
+            var chip=document.createElement('span');
+            chip.className='palette-chip';chip.style.background=hex;chip.title=hex;
+            chip.onclick=function(){selectedColor=hex;setTool('draw');document.getElementById('colorPicker').value=hex;
+                var boxes=document.querySelectorAll('.color-box');for(var b=0;b<boxes.length;b++)boxes[b].classList.remove('active');};
+            pd.appendChild(chip);
+        })(cols[c].trim());}
+        var hint=document.createElement('div');hint.style.cssText='font-size:0.8rem;color:#64748b;margin-top:6px;';
+        hint.textContent='Click a color to draw with it';pd.appendChild(hint);
+    }
+
+    var style='';
+    for(var i=0;i<lines.length;i++){
+        if(lines[i].match(/Style Direction|^\*\*5\./i)){
+            var c2=lines[i].replace(/.*Style Direction[^:]*:/i,'').replace(/^\*\*5\.\s*/,'').replace(/\*\*/g,'').trim();
+            if(!c2&&lines[i+1])c2=lines[i+1].replace(/\*\*/g,'').trim();
+            if(c2){style=c2;break;}
+        }
+    }
+    aiStyleName=style||'Artisan Tile Design';
+    document.getElementById('styleText').textContent=aiStyleName;
+}
+
+function generateRealisticImage() {
+    var genSection = document.getElementById('generatedSection');
+    var genLoader  = document.getElementById('genLoader');
+    var genBox     = document.getElementById('generatedImageBox');
+    var savedBadge = document.getElementById('savedBadge');
+    var btnGen     = document.getElementById('btnGenerate');
+
+    genSection.style.display = 'block';
+    genLoader.style.display  = 'block';
+    genBox.style.display     = 'none';
+    savedBadge.style.display = 'none';
+    btnGen.disabled          = true;
+    genSection.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+    var prompt =
+        "Realistic ceramic tile design, " + aiRecognizedObject + " motif, " +
+        aiStyleName + " style, square tile, glazed surface, white background, " +
+        "product photography, high resolution";
+
+    fetch("GenerateImage.ashx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            prompt:   prompt,
+            username: 'viki',
+            email:    '24spcs17@tcarts.in'
+        })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+        genLoader.style.display = 'none';
+        btnGen.disabled = false;
+
+        if (data.error) {
+            genBox.style.display = 'block';
+            document.getElementById('generatedImg').src = '';
+            document.getElementById('generatedImg').alt = 'Error: ' + data.error;
+            return;
+        }
+
+        var imgSrc = 'data:image/png;base64,' + data.imageBase64;
+        document.getElementById('generatedImg').src = imgSrc;
+        document.getElementById('downloadLink').href = imgSrc;
+
+        // ✅ Save AI filename to HiddenField2 so it gets saved with request
+        document.getElementById('ContentPlaceHolder1_HiddenField2').value = data.filename;
+
+        genBox.style.display     = 'block';
+        savedBadge.style.display = 'inline-block';
+    })
+    .catch(function(err){
+        genLoader.style.display = 'none';
+        btnGen.disabled = false;
+        genBox.style.display = 'block';
+        document.getElementById('generatedImg').alt = 'Error: ' + err.message;
+    });
+}
+
+function applyPattern(type) {
+    saveSnapshot();
+    var w=canvas.width,h=canvas.height;
+    ctx.save(); ctx.globalAlpha=0.22;
+    ctx.strokeStyle=selectedColor; ctx.fillStyle=selectedColor; ctx.lineWidth=1.5;
+    if(type==='geometric'){for(var x=0;x<w;x+=50)for(var y=0;y<h;y+=50){ctx.beginPath();ctx.rect(x+5,y+5,40,40);ctx.stroke();ctx.beginPath();ctx.moveTo(x+5,y+5);ctx.lineTo(x+45,y+45);ctx.moveTo(x+45,y+5);ctx.lineTo(x+5,y+45);ctx.stroke();}}
+    else if(type==='floral'){for(var x=25;x<w;x+=55)for(var y=25;y<h;y+=55){for(var i=0;i<6;i++){ctx.beginPath();ctx.ellipse(x+Math.cos(i*Math.PI/3)*12,y+Math.sin(i*Math.PI/3)*12,7,3.5,i*Math.PI/3,0,Math.PI*2);ctx.fill();}ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();}}
+    else if(type==='abstract'){ctx.lineWidth=2;for(var i=0;i<20;i++){ctx.beginPath();ctx.moveTo(Math.random()*w,Math.random()*h);ctx.bezierCurveTo(Math.random()*w,Math.random()*h,Math.random()*w,Math.random()*h,Math.random()*w,Math.random()*h);ctx.stroke();}}
+    else if(type==='diagonal'){for(var i=-h;i<w+h;i+=22){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i+h,h);ctx.stroke();}}
+    else if(type==='dots'){for(var x=22;x<w;x+=38)for(var y=22;y<h;y+=38){ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();}}
+    else if(type==='zigzag'){ctx.lineWidth=2;for(var row=0;row<8;row++){var y0=row*44+22;ctx.beginPath();ctx.moveTo(0,y0);for(var x=0;x<w;x+=30){ctx.lineTo(x+15,y0-18);ctx.lineTo(x+30,y0);}ctx.stroke();}}
+    else if(type==='mandala'){var cx=w/2,cy=h/2;for(var ring=1;ring<=5;ring++){var r=ring*32,petals=ring*6;for(var p=0;p<petals;p++){var ang=(p/petals)*Math.PI*2;ctx.beginPath();ctx.ellipse(cx+Math.cos(ang)*r*0.7,cy+Math.sin(ang)*r*0.7,r*0.18,r*0.09,ang,0,Math.PI*2);ctx.fill();}ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();}}
+    else if(type==='hexagon'){var size=30,hx=size*Math.sqrt(3),hy=size*1.5;for(var col=0;col*hx<w+hx;col++)for(var row=0;row*hy<h+hy;row++){var ox=col*hx+(row%2)*hx/2,oy=row*hy;ctx.beginPath();for(var s=0;s<6;s++){var a=Math.PI/180*(60*s-30);if(s===0)ctx.moveTo(ox+size*Math.cos(a),oy+size*Math.sin(a));else ctx.lineTo(ox+size*Math.cos(a),oy+size*Math.sin(a));}ctx.closePath();ctx.stroke();}}
+    else if(type==='waves'){ctx.lineWidth=2;for(var row=0;row<12;row++){var y0=row*30+15;ctx.beginPath();ctx.moveTo(0,y0);for(var x=0;x<w;x+=40)ctx.bezierCurveTo(x+10,y0-15,x+30,y0+15,x+40,y0);ctx.stroke();}}
+    else if(type==='checkerboard'){ctx.globalAlpha=0.15;for(var x=0;x<w;x+=40)for(var y=0;y<h;y+=40)if((Math.floor(x/40)+Math.floor(y/40))%2===0)ctx.fillRect(x,y,40,40);}
+    else if(type==='stars'){for(var x=35;x<w;x+=60)for(var y=35;y<h;y+=60){ctx.beginPath();for(var s=0;s<10;s++){var a=(s*Math.PI/5)-Math.PI/2,r2=(s%2===0)?18:8;if(s===0)ctx.moveTo(x+r2*Math.cos(a),y+r2*Math.sin(a));else ctx.lineTo(x+r2*Math.cos(a),y+r2*Math.sin(a));}ctx.closePath();ctx.fill();}}
+    else if(type==='diamonds'){for(var x=25;x<w;x+=50)for(var y=25;y<h;y+=50){ctx.beginPath();ctx.moveTo(x,y-20);ctx.lineTo(x+20,y);ctx.lineTo(x,y+20);ctx.lineTo(x-20,y);ctx.closePath();ctx.stroke();}}
+    else if(type==='crosshatch'){ctx.lineWidth=1;for(var i=0;i<w;i+=20){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,h);ctx.stroke();}for(var i=0;i<h;i+=20){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(w,i);ctx.stroke();}}
+    else if(type==='spiral'){var cx=w/2,cy=h/2;ctx.lineWidth=1.5;ctx.beginPath();for(var angle=0;angle<Math.PI*16;angle+=0.05){var r=angle*5,sx=cx+r*Math.cos(angle),sy=cy+r*Math.sin(angle);if(angle===0)ctx.moveTo(sx,sy);else ctx.lineTo(sx,sy);if(r>Math.min(w,h)/2)break;}ctx.stroke();}
+    else if(type==='triangles'){for(var x=0;x<w;x+=50)for(var y=0;y<h;y+=44){ctx.beginPath();ctx.moveTo(x+25,y);ctx.lineTo(x+50,y+44);ctx.lineTo(x,y+44);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(x+25,y+44);ctx.lineTo(x+50,y);ctx.lineTo(x,y);ctx.closePath();ctx.stroke();}}
+    else if(type==='moroccan'){var s=40;for(var x=0;x<w+s;x+=s)for(var y=0;y<h+s;y+=s){ctx.beginPath();ctx.moveTo(x,y-s*0.4);ctx.lineTo(x+s*0.4,y);ctx.lineTo(x,y+s*0.4);ctx.lineTo(x-s*0.4,y);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.arc(x,y,s*0.15,0,Math.PI*2);ctx.fill();}}
+    ctx.restore();
+}
+</script>
+
+
+</section>
+
+<script src="js/common.js"></script>
+
+</div>
+
+</form>
+
+</body>
+</html>

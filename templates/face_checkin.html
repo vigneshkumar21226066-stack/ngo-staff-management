@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Check-In</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; color: #1a3a5c; }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2438 100%);
+            color: white; padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar a { color: white; text-decoration: none; font-size: 13px; opacity: 0.85; }
+
+        .container { max-width: 600px; margin: 40px auto; padding: 0 24px; text-align: center; }
+        h1 { font-size: 22px; margin-bottom: 8px; }
+        p.subtitle { font-size: 13px; color: #6b7785; margin-bottom: 24px; }
+
+        #video { width: 100%; max-width: 400px; border-radius: 12px; background: #000; }
+        canvas { display: none; }
+
+        button {
+            background: #1a3a5c; color: white; border: none;
+            padding: 14px 32px; border-radius: 8px;
+            font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 20px;
+        }
+        button:hover { background: #0f2438; }
+        button:disabled { background: #b0b8c0; cursor: not-allowed; }
+
+        .result-msg {
+            margin-top: 18px; font-size: 14px; padding: 14px 18px;
+            border-radius: 8px; display: none;
+        }
+        .result-msg.success { background: #e6f4ea; color: #2e7d32; display: block; }
+        .result-msg.error { background: #fdecea; color: #c0392b; display: block; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <span>Face Check-In</span>
+        <a href="/logout">Log Out</a>
+    </div>
+
+    <div class="container">
+        <h1>Face Check-In</h1>
+        <p class="subtitle">Look at the camera and click Check In to mark your attendance.</p>
+
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+
+        <div>
+            <button id="checkinBtn" onclick="checkIn()">Check In</button>
+        </div>
+
+        <div id="resultMsg" class="result-msg"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const btn = document.getElementById('checkinBtn');
+        const msg = document.getElementById('resultMsg');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => {
+                msg.textContent = "Camera access denied. Please allow camera access.";
+                msg.className = 'result-msg error';
+            });
+
+        function checkIn() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            btn.disabled = true;
+            btn.textContent = 'Checking...';
+
+            canvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('photo', blob, 'checkin.jpg');
+
+                fetch('/face/checkin', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                        btn.disabled = false;
+                        btn.textContent = 'Check In';
+                        msg.textContent = data.message;
+                        msg.className = data.success ? 'result-msg success' : 'result-msg error';
+                    });
+            }, 'image/jpeg');
+        }
+    </script>
+</body>
+</html>
